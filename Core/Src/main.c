@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "display.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,7 +96,11 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  disableAllDigits();
+  disableAllSegments();
 
+  uint8_t digit = 0;
+  char character = '0';
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -104,6 +108,17 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+	  disableAllDigits();
+	  LL_GPIO_SetOutputPin(digit_port[digit], digit_pin[digit]);
+	  displayAsciiCharacter(character);
+
+	  character++;
+	  if(character > 'z')
+		  character = '0';
+
+	  digit = (digit + 1) % 4;
+
+	  LL_mDelay(500);
 
     /* USER CODE BEGIN 3 */
   }
