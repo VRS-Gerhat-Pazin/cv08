@@ -58,7 +58,8 @@ void SysTick_Handler(void);
 void TIM2_IRQHandler(void);
 void TIM3_IRQHandler(void);
 /* USER CODE BEGIN EFP */
-
+void TIM2_RegisterUpdateCallback(void (*updateCallback)(void));
+void TIM3_RegisterUpdateCallback(void (*updateCallback)(void));
 /* USER CODE END EFP */
 
 #ifdef __cplusplus
