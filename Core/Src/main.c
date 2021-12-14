@@ -24,6 +24,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "display.h"
+#include "string.h"
+#include "stm32f3xx_it.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,13 +45,21 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+char text[]="SIMON_PAZIN_98358";
+uint8_t direction=0;
+uint8_t position=0;
+uint8_t length;
+
+char disp_text[4];
+uint8_t digit=0;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void RollText();
+void UpdateDisp();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -64,7 +74,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	length=strlen(text);
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -98,9 +108,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
   disableAllDigits();
   disableAllSegments();
-
-  uint8_t digit = 0;
-  char character = '0';
+  TIM2_RegisterUpdateCallback(UpdateDisp);
+  TIM3_RegisterUpdateCallback(RollText);
+  LL_TIM_EnableIT_UPDATE(TIM2);
+  LL_TIM_EnableIT_UPDATE(TIM3);
+  LL_TIM_EnableCounter(TIM2);
+  LL_TIM_EnableCounter(TIM3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -108,17 +121,6 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  disableAllDigits();
-	  LL_GPIO_SetOutputPin(digit_port[digit], digit_pin[digit]);
-	  displayAsciiCharacter(character);
-
-	  character++;
-	  if(character > 'z')
-		  character = '0';
-
-	  digit = (digit + 1) % 4;
-
-	  LL_mDelay(500);
 
     /* USER CODE BEGIN 3 */
   }
@@ -158,6 +160,35 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void RollText()
+{
+	memcpy(disp_text, text+position, 4);
+	if (direction==0)
+	{
+		position++;
+		if (position==(length-4))
+		{
+			direction=1;
+		}
+	}
+	else
+	{
+		position--;
+		if (position==0)
+		{
+			direction=0;
+		}
+	}
+}
+
+void UpdateDisp()
+{
+	disableAllDigits();
+	LL_GPIO_SetOutputPin(digit_port[digit], digit_pin[digit]);
+	displayAsciiCharacter(disp_text[digit]);
+	digit++;
+	if (digit>=4) digit=0;
+}
 
 /* USER CODE END 4 */
 
